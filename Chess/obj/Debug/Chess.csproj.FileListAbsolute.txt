@@ -1,0 +1,9 @@
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\bin\Debug\Chess.exe.config
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\bin\Debug\Chess.exe
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\bin\Debug\Chess.pdb
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.csprojResolveAssemblyReference.cache
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.Form1.resources
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.Properties.Resources.resources
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.csproj.GenerateResource.Cache
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.exe
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.pdb
