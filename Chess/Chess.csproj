@@ -44,6 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alert.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Alert.Designer.cs">
+      <DependentUpon>Alert.cs</DependentUpon>
+    </Compile>
     <Compile Include="Board.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -52,12 +58,27 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectTime.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SelectTime.Designer.cs">
+      <DependentUpon>SelectTime.cs</DependentUpon>
+    </Compile>
     <Compile Include="Start.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Start.Designer.cs">
       <DependentUpon>Start.cs</DependentUpon>
     </Compile>
+    <Compile Include="Welcome.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Welcome.Designer.cs">
+      <DependentUpon>Welcome.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Alert.resx">
+      <DependentUpon>Alert.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Board.resx">
       <DependentUpon>Board.cs</DependentUpon>
     </EmbeddedResource>
@@ -71,8 +92,14 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SelectTime.resx">
+      <DependentUpon>SelectTime.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Start.resx">
       <DependentUpon>Start.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Welcome.resx">
+      <DependentUpon>Welcome.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -122,6 +149,45 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\rook-w.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Rectangle 1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Scroll Group 1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Ellipse 1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Ellipse 3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Ellipse 2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Ellipse 21.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Rectangle 11.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Rectangle 12.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Rectangle 13.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Rectangle 2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

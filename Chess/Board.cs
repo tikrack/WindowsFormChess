@@ -14,6 +14,10 @@ namespace Chess
     {
         Panel panel;
         PictureBox selectedChessman;
+        bool is_first = true;
+        bool finished = false;
+        string shouldMove = "w";
+        string loser = null;
 
         int[,] map = new int[8,8];
 
@@ -137,6 +141,140 @@ namespace Chess
             return 0;
         }
 
+        string GetPieceType(int v)
+        {
+            v = Math.Abs(v);
+
+            switch(v) {
+                case 1:
+                    return "pawn";
+                case 2:
+                    return "rook";
+                case 3:
+                    return "knight";
+                case 4:
+                    return "bishop";
+                case 5:
+                    return "queen";
+                case 6:
+                    return "king";
+                default:
+                    return "?";
+            }
+        }
+
+        bool CanPieceAttack(string pieceType, string color, int fromRow, int fromCol, int toRow, int toCol)
+        {
+            int[] f = new int[] { fromRow, fromCol };
+            int[] t = new int[] { toRow, toCol };
+            return ValidateMoveAttackOnly(f, t, pieceType, color);
+        }
+
+        bool ValidateMoveAttackOnly(int[] from, int[] to, string pieceType, string color)
+        {
+            int fr = from[0], fc = from[1];
+            int tr = to[0], tc = to[1];
+
+            int targetValue = map[tr, tc];
+
+            if (color == "w")
+            {
+                if (pieceType == "pawn")
+                {
+                    if (Math.Abs(fc - tc) == 1 && tr == fr - 1)
+                        return true;
+                    return false;
+                }
+
+                if (pieceType == "rook")
+                    if (fr == tr || fc == tc)
+                        return IsPathClear(fr, fc, tr, tc);
+
+                if (pieceType == "bishop")
+                    if (Math.Abs(fr - tr) == Math.Abs(fc - tc))
+                        return IsPathClear(fr, fc, tr, tc);
+
+                if (pieceType == "queen")
+                    if (fr == tr || fc == tc || Math.Abs(fr - tr) == Math.Abs(fc - tc))
+                        return IsPathClear(fr, fc, tr, tc);
+
+                if (pieceType == "king")
+                    return Math.Abs(fr - tr) <= 1 && Math.Abs(fc - tc) <= 1;
+
+                if (pieceType == "knight")
+                {
+                    int dr = Math.Abs(fr - tr);
+                    int dc = Math.Abs(fc - tc);
+                    return (dr == 2 && dc == 1) || (dr == 1 && dc == 2);
+                }
+            }
+            else
+            {
+                if (pieceType == "pawn")
+                {
+                    if (Math.Abs(fc - tc) == 1 && tr == fr + 1)
+                        return true;
+                    return false;
+                }
+
+                if (pieceType == "rook")
+                    if (fr == tr || fc == tc)
+                        return IsPathClear(fr, fc, tr, tc);
+
+                if (pieceType == "bishop")
+                    if (Math.Abs(fr - tr) == Math.Abs(fc - tc))
+                        return IsPathClear(fr, fc, tr, tc);
+
+                if (pieceType == "queen")
+                    if (fr == tr || fc == tc || Math.Abs(fr - tr) == Math.Abs(fc - tc))
+                        return IsPathClear(fr, fc, tr, tc);
+
+                if (pieceType == "king")
+                    return Math.Abs(fr - tr) <= 1 && Math.Abs(fc - tc) <= 1;
+
+                if (pieceType == "knight")
+                {
+                    int dr = Math.Abs(fr - tr);
+                    int dc = Math.Abs(fc - tc);
+                    return (dr == 2 && dc == 1) || (dr == 1 && dc == 2);
+                }
+            }
+
+            return false;
+        }
+
+        bool HasAnyLegalMove(string color)
+        {
+            for (int r = 0; r < 8; r++)
+            {
+                for (int c = 0; c < 8; c++)
+                {
+                    int v = map[r, c];
+
+                    if (color == "w" && v <= 0) continue;
+                    if (color == "b" && v >= 0) continue;
+
+                    string type = GetPieceType(v);
+
+                    for (int r2 = 0; r2 < 8; r2++)
+                    {
+                        for (int c2 = 0; c2 < 8; c2++)
+                        {
+                            int[] from = { r, c };
+                            int[] to = { r2, c2 };
+
+                            bool canMove = ValidateMove(from, to, string.Format("{0}@{1}", type, color));
+
+                            if (canMove)
+                                return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         string renderCellName(int index, bool num = true, bool lett = true)
         {
             char letter = (char)(index % 8 + 97);
@@ -151,8 +289,58 @@ namespace Chess
                 return "";
         }
 
+        void SimulateMove(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            map[toRow, toCol] = map[fromRow, fromCol];
+            map[fromRow, fromCol] = 0;
+        }
+
+        bool IsKingInCheck(string color)
+        {
+            int kingValue = color == "w" ? 6 : -6;
+
+            int kingRow = -1, kingCol = -1;
+
+            for (int r = 0; r < 8; r++)
+                for (int c = 0; c < 8; c++)
+                    if (map[r, c] == kingValue)
+                    {
+                        kingRow = r;
+                        kingCol = c;
+                    }
+
+            string opponent = color == "w" ? "b" : "w";
+
+            for (int r = 0; r < 8; r++)
+            {
+                for (int c = 0; c < 8; c++)
+                {
+                    int v = map[r, c];
+                    if (v == 0) continue;
+
+                    if (opponent == "w" && v > 0)
+                    {
+                        string type = GetPieceType(v);
+                        if (CanPieceAttack(type, "w", r, c, kingRow, kingCol))
+                            return true;
+                    }
+                    else if (opponent == "b" && v < 0)
+                    {
+                        string type = GetPieceType(v);
+                        if (CanPieceAttack(type, "b", r, c, kingRow, kingCol))
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
         bool ValidateMove(int[] from, int[] to, string tag)
         {
+            if (finished) return false;
+
             string[] details = tag.Split('@');
             string pieceType = details[0];
             string pieceColor = details[1];
@@ -164,8 +352,12 @@ namespace Chess
 
             int targetValue = map[toRow, toCol];
 
+            if (pieceColor != shouldMove) return false;
+
             if (pieceColor == "w" && targetValue > 0) return false;
             if (pieceColor == "b" && targetValue < 0) return false;
+
+            bool isValid = false;
 
             if (pieceColor == "w")
             {
@@ -177,61 +369,53 @@ namespace Chess
                         if (fromRow == 6 && (toRow == 5 || toRow == 4))
                         {
                             if (toRow == 4 && map[5, fromCol] != 0) return false;
-                            return true;
+                            isValid = true;
                         }
-                        if (toRow == fromRow - 1) return true;
+                        else if (toRow == fromRow - 1) isValid = true;
                     }
                     else if (Math.Abs(fromCol - toCol) == 1 && toRow == fromRow - 1)
                     {
-                        if (targetValue < 0) return true;
+                        if (targetValue < 0) isValid = true;
                     }
-                    return false;
                 }
 
-                if (pieceType == "rook")
+                else if (pieceType == "rook")
                 {
                     if (fromRow == toRow || fromCol == toCol)
-                    {
-                        if (!IsPathClear(fromRow, fromCol, toRow, toCol)) return false;
-                        return true;
-                    }
-                    return false;
+                        if (IsPathClear(fromRow, fromCol, toRow, toCol))
+                            isValid = true;
                 }
 
-                if (pieceType == "bishop")
+                else if (pieceType == "bishop")
                 {
                     if (Math.Abs(fromRow - toRow) == Math.Abs(fromCol - toCol))
-                    {
-                        if (!IsPathClear(fromRow, fromCol, toRow, toCol)) return false;
-                        return true;
-                    }
-                    return false;
+                        if (IsPathClear(fromRow, fromCol, toRow, toCol))
+                            isValid = true;
                 }
 
-                if (pieceType == "queen")
+                else if (pieceType == "queen")
                 {
-                    if (fromRow == toRow || fromCol == toCol || Math.Abs(fromRow - toRow) == Math.Abs(fromCol - toCol))
-                    {
-                        if (!IsPathClear(fromRow, fromCol, toRow, toCol)) return false;
-                        return true;
-                    }
-                    return false;
+                    if (fromRow == toRow || fromCol == toCol ||
+                        Math.Abs(fromRow - toRow) == Math.Abs(fromCol - toCol))
+                        if (IsPathClear(fromRow, fromCol, toRow, toCol))
+                            isValid = true;
                 }
 
-                if (pieceType == "king")
+                else if (pieceType == "king")
                 {
-                    if (Math.Abs(fromRow - toRow) <= 1 && Math.Abs(fromCol - toCol) <= 1) return true;
-                    return false;
+                    if (Math.Abs(fromRow - toRow) <= 1 && Math.Abs(fromCol - toCol) <= 1)
+                        isValid = true;
                 }
 
-                if (pieceType == "knight")
+                else if (pieceType == "knight")
                 {
                     int dr = Math.Abs(fromRow - toRow);
                     int dc = Math.Abs(fromCol - toCol);
-                    if ((dr == 2 && dc == 1) || (dr == 1 && dc == 2)) return true;
-                    return false;
+                    if ((dr == 2 && dc == 1) || (dr == 1 && dc == 2))
+                        isValid = true;
                 }
             }
+
             else if (pieceColor == "b")
             {
                 if (pieceType == "pawn")
@@ -242,63 +426,106 @@ namespace Chess
                         if (fromRow == 1 && (toRow == 2 || toRow == 3))
                         {
                             if (toRow == 3 && map[2, fromCol] != 0) return false;
-                            return true;
+                            isValid = true;
                         }
-                        if (toRow == fromRow + 1) return true;
+                        else if (toRow == fromRow + 1) isValid = true;
                     }
                     else if (Math.Abs(fromCol - toCol) == 1 && toRow == fromRow + 1)
                     {
-                        if (targetValue > 0) return true;
+                        if (targetValue > 0) isValid = true;
                     }
-                    return false;
                 }
 
-                if (pieceType == "rook")
+                else if (pieceType == "rook")
                 {
                     if (fromRow == toRow || fromCol == toCol)
-                    {
-                        if (!IsPathClear(fromRow, fromCol, toRow, toCol)) return false;
-                        return true;
-                    }
-                    return false;
+                        if (IsPathClear(fromRow, fromCol, toRow, toCol))
+                            isValid = true;
                 }
 
-                if (pieceType == "bishop")
+                else if (pieceType == "bishop")
                 {
                     if (Math.Abs(fromRow - toRow) == Math.Abs(fromCol - toCol))
-                    {
-                        if (!IsPathClear(fromRow, fromCol, toRow, toCol)) return false;
-                        return true;
-                    }
-                    return false;
+                        if (IsPathClear(fromRow, fromCol, toRow, toCol))
+                            isValid = true;
                 }
 
-                if (pieceType == "queen")
+                else if (pieceType == "queen")
                 {
-                    if (fromRow == toRow || fromCol == toCol || Math.Abs(fromRow - toRow) == Math.Abs(fromCol - toCol))
-                    {
-                        if (!IsPathClear(fromRow, fromCol, toRow, toCol)) return false;
-                        return true;
-                    }
-                    return false;
+                    if (fromRow == toRow || fromCol == toCol ||
+                        Math.Abs(fromRow - toRow) == Math.Abs(fromCol - toCol))
+                        if (IsPathClear(fromRow, fromCol, toRow, toCol))
+                            isValid = true;
                 }
 
-                if (pieceType == "king")
+                else if (pieceType == "king")
                 {
-                    if (Math.Abs(fromRow - toRow) <= 1 && Math.Abs(fromCol - toCol) <= 1) return true;
-                    return false;
+                    if (Math.Abs(fromRow - toRow) <= 1 && Math.Abs(fromCol - toCol) <= 1)
+                        isValid = true;
                 }
 
-                if (pieceType == "knight")
+                else if (pieceType == "knight")
                 {
                     int dr = Math.Abs(fromRow - toRow);
                     int dc = Math.Abs(fromCol - toCol);
-                    if ((dr == 2 && dc == 1) || (dr == 1 && dc == 2)) return true;
-                    return false;
+                    if ((dr == 2 && dc == 1) || (dr == 1 && dc == 2))
+                        isValid = true;
                 }
             }
 
-            return false;
+            if (!isValid) return false;
+
+            int[,] backup = (int[,])map.Clone();
+            SimulateMove(fromRow, fromCol, toRow, toCol);
+
+            if (IsKingInCheck(pieceColor))
+            {
+                map = backup;
+                return false;
+            }
+
+            string opponent = pieceColor == "w" ? "b" : "w";
+
+            bool opponentInCheck = IsKingInCheck(opponent);
+            bool opponentHasMove = HasAnyLegalMove(opponent);
+
+            if (opponentInCheck && !opponentHasMove)
+            {
+                OnCheckmate(opponent);
+                return true;
+            }
+
+            if (!opponentInCheck && !opponentHasMove )
+            {
+                OnStalemate(opponent);
+                return true;
+            }
+
+            if (opponentInCheck)
+            {
+                OnCheck(opponent);
+                return true;
+            }
+
+            return true;
+        }
+
+        void OnCheck(string color)
+        {
+            
+        }
+
+        void OnCheckmate(string color)
+        {
+            timer1.Enabled = false;
+            finished = true;
+            loser = color;
+            finishGame();
+        }
+
+        void OnStalemate(string color)
+        {
+            Console.WriteLine("Hey Draaw!");
         }
 
         bool IsPathClear(int fromRow, int fromCol, int toRow, int toCol)
@@ -480,6 +707,36 @@ namespace Chess
             }
         }
 
+        void InitializeButtons()
+        {
+            foreach (object item in panel4.Controls)
+            {
+                if (item is Panel)
+                {
+                    Panel btn = item as Panel;
+                    Label lbl = new Label();
+
+                    if (btn.Tag == null || !btn.Tag.ToString().StartsWith("btn2_") || btn.Tag.ToString().StartsWith("btn1_")) continue;
+
+                    lbl.BackColor = Color.Transparent;
+                    lbl.ForeColor = Color.White;
+                    lbl.AutoSize = true;
+                    lbl.Text = btn.Tag.ToString().Split('_')[1];
+                    lbl.Font = new System.Drawing.Font("Arial Rounded MT Bold", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+
+                    btn.Controls.Add(lbl);
+                    lbl.Top = btn.Height / 2 - lbl.Height / 2;
+                    lbl.Left = btn.Width / 2 - lbl.Width / 2;
+
+                    if (btn.Tag.ToString().StartsWith("btn2_"))
+                    {
+                        lbl.Font = new System.Drawing.Font("Arial Rounded MT Bold", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    }
+                    else continue;
+                }
+            }
+        }
+
         public Board()
         {
             this.BackColor = Color.FromArgb(38, 35, 34);
@@ -489,8 +746,77 @@ namespace Chess
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            panel.Location = new Point((this.ClientSize.Width / 2) - (panel.Width / 2), 50);
+            panel.Location = new Point((this.ClientSize.Width / 2) - (panel.Width / 2), 120);
             InitializeKeys();
+            InitializeButtons();
+            panel2.Left = panel1.Width - panel2.Width - 15;
+            panel5.Left = panel1.Width - panel2.Width * 2 - 21;
+            panel6.Left = panel1.Width - panel2.Width * 3 - 28;
+            timer.Left = this.ClientSize.Width / 2 - timer.Width / 2;
+        }
+
+        string ToSan(string from, string to, string piece, bool isCapture = false)
+        {
+            string pieceLetter = piece.ToLower() == "pawn" ? "" :
+                                 piece.ToLower() == "knight" ? "N" :
+                                 piece.ToLower() == "bishop" ? "B" :
+                                 piece.ToLower() == "rook" ? "R" :
+                                 piece.ToLower() == "queen" ? "Q" :
+                                 piece.ToLower() == "king" ? "K" : "";
+
+            if (pieceLetter == "" && isCapture)
+                return string.Format("{0}x{1}", from[0], to);
+  
+            if (isCapture)
+                return string.Format("{0}x{1}", pieceLetter, to);
+  
+            return string.Format("{0}{1}", pieceLetter, to);
+        }
+
+        void SaveMove(string move)
+        {
+            if (selectedChessman.Tag.ToString().Split('@')[1] == "w") {
+                shouldMove = "b";
+            }else if (selectedChessman.Tag.ToString().Split('@')[1] == "b") {
+                shouldMove = "w";
+            }
+
+            Panel mv = new Panel();
+
+            mv.Size = new Size(367, 45);
+            mv.Left = panel3.Width / 2 - mv.Width / 2;
+            mv.BackgroundImage = Properties.Resources.Rectangle_2;
+            mv.BackColor = Color.Transparent;
+            mv.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+
+            if (panel3.Controls.Count == 1)
+                mv.Top = 60;
+            else
+                mv.Top = (panel3.Controls[panel3.Controls.Count - 1] as Panel).Top + mv.Height + 10;
+
+            Label lbl = new Label();
+
+            lbl.BackColor = Color.Transparent;
+            lbl.ForeColor = Color.White;
+            lbl.AutoSize = true;
+            lbl.Text = move;
+            lbl.Font = new System.Drawing.Font("Arial Rounded MT Bold", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+
+            mv.Controls.Add(lbl);
+            lbl.Font = new System.Drawing.Font("Arial Rounded MT Bold", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            lbl.Top = mv.Height / 2 - lbl.Height / 2;
+            lbl.Left = 15;
+
+            PictureBox icon = new PictureBox();
+            
+            icon.Image = ChessmansWhite[getChessmanType(selectedChessman.Tag.ToString())];
+            icon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            icon.Size = new Size(25, 25);
+            icon.Top = mv.Height / 2 - icon.Height / 2;
+            icon.Left = mv.Width - icon.Width - 15;
+
+            mv.Controls.Add(icon);
+            panel3.Controls.Add(mv);
         }
 
         void panel_click(object sender, EventArgs e)
@@ -512,8 +838,7 @@ namespace Chess
                 return;
             }
 
-            map[currentChessmanPos[0], currentChessmanPos[1]] = map[chessmanPos[0], chessmanPos[1]];
-            map[chessmanPos[0], chessmanPos[1]] = 0;
+            SaveMove(ToSan((selectedChessman.Parent as Panel).Name, p.Name, selectedChessman.Tag.ToString().Split('@')[0]));
 
             selectedChessman = null;
             SyncUi();
@@ -540,8 +865,7 @@ namespace Chess
                     return;
                 }
 
-                map[currentChessmanPos[0], currentChessmanPos[1]] = map[chessmanPos[0], chessmanPos[1]];
-                map[chessmanPos[0], chessmanPos[1]] = 0;
+                SaveMove(ToSan((selectedChessman.Parent as Panel).Name, ((sender as PictureBox).Parent as Panel).Name, selectedChessman.Tag.ToString().Split('@')[0]));
 
                 selectedChessman = null;
                 SyncUi();
@@ -565,6 +889,64 @@ namespace Chess
         {
             Start start = this.Tag as Start;
             start.Visible = true;
+        }
+
+        private void panel6_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        void finishGame()
+        {
+            Alert alert = new Alert(
+                loser == "b" ? AlertType.White : AlertType.Black,
+                loser == "b" ? "White is winner!" : "Black is winner",
+                "GG!"
+            );
+
+            alert.ShowDialog();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (timer.Text == "00:00" && is_first)
+            {
+                Label lbl = (this.Tag as Start).time.Controls[0] as Label;
+
+                int minut;
+                bool status = int.TryParse(lbl.Text.Split(' ')[0], out minut);
+
+                if (status)
+                    timer.Text = string.Format("{0:d2}:00", minut);
+
+                is_first = false;
+
+                return;
+            }
+
+            if (timer.Text == "00:00" && !is_first)
+            {
+                finished = true;
+                timer1.Enabled = false;
+
+                finishGame();
+                return;
+            }
+
+            int m, s;
+
+            m = int.Parse(timer.Text.Split(':')[0]);
+            s = int.Parse(timer.Text.Split(':')[1]);
+            
+            if (s == 0)
+            {
+                m--;
+                s = 59;
+            }
+            else
+                s--;
+
+            timer.Text = string.Format("{0:d2}:{1:d2}", m, s);
         }
     }
 }
