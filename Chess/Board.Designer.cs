@@ -39,10 +39,13 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.shouldMoveBox = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
             this.time = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.shouldMoveBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -152,11 +155,35 @@
             this.panel4.AutoScroll = true;
             this.panel4.BackgroundImage = global::Chess.Properties.Resources.Rectangle_12;
             this.panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panel4.Controls.Add(this.shouldMoveBox);
             this.panel4.Controls.Add(this.time);
             this.panel4.Location = new System.Drawing.Point(70, 61);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(400, 858);
             this.panel4.TabIndex = 5;
+            // 
+            // shouldMoveBox
+            // 
+            this.shouldMoveBox.BackColor = System.Drawing.SystemColors.Window;
+            this.shouldMoveBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.shouldMoveBox.Controls.Add(this.label3);
+            this.shouldMoveBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.shouldMoveBox.Location = new System.Drawing.Point(31, 34);
+            this.shouldMoveBox.Name = "shouldMoveBox";
+            this.shouldMoveBox.Size = new System.Drawing.Size(339, 51);
+            this.shouldMoveBox.TabIndex = 2;
+            this.shouldMoveBox.Tag = "";
+            this.shouldMoveBox.Click += new System.EventHandler(this.time_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Arial Rounded MT Bold", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(136, 16);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(62, 22);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "White";
             // 
             // time
             // 
@@ -164,11 +191,12 @@
             this.time.BackgroundImage = global::Chess.Properties.Resources.btn2;
             this.time.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.time.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.time.Location = new System.Drawing.Point(31, 27);
+            this.time.Location = new System.Drawing.Point(31, 103);
             this.time.Name = "time";
             this.time.Size = new System.Drawing.Size(339, 51);
             this.time.TabIndex = 2;
-            this.time.Tag = "btn2_Resign Game";
+            this.time.Tag = "btn2_Exit Game";
+            this.time.Click += new System.EventHandler(this.time_Click);
             // 
             // Board
             // 
@@ -195,6 +223,8 @@
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
+            this.shouldMoveBox.ResumeLayout(false);
+            this.shouldMoveBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -213,14 +243,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel4;
         public System.Windows.Forms.Panel time;
-
-
-
-
-
-
-
-
+        public System.Windows.Forms.Panel shouldMoveBox;
+        private System.Windows.Forms.Label label3;
     }
 }
 

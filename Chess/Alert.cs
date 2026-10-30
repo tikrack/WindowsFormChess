@@ -13,11 +13,15 @@ namespace Chess
     public enum AlertType
     {
         White,
-        Black
+        Black,
+        Info
     }
 
     public partial class Alert : Form
     {
+        bool isDragging = false;
+        Point dragStartPoint;
+
         AlertType type;
         string title;
         string description;
@@ -35,6 +39,9 @@ namespace Chess
             if (type == AlertType.Black)
                 pictureBox1.Image = Properties.Resources.queen_b;
 
+            if (type == AlertType.Info)
+                pictureBox1.Image = Properties.Resources.info;
+
             label1.Text = title;
             label2.Text = title;
             label3.Text = description;
@@ -43,6 +50,40 @@ namespace Chess
         private void panel2_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void panel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isDragging = true;
+                dragStartPoint = new Point(e.X, e.Y);
+            }
+        }
+
+        private void panel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point newLocation = this.Location;
+                newLocation.X += e.X - dragStartPoint.X;
+                newLocation.Y += e.Y - dragStartPoint.Y;
+
+                this.Location = newLocation;
+            }
+        }
+
+        private void panel1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isDragging = false;
+            }
+        }
+
+        private void panel2_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

@@ -11,3 +11,4 @@ C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.Board.resources
 C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.Welcome.resources
 C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.SelectTime.resources
 C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.Alert.resources
+C:\Users\Tikrack\Desktop\Finally\Chess\Chess\obj\Debug\Chess.SelectPiece.resources

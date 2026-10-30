@@ -19,7 +19,7 @@ namespace Chess
         string shouldMove = "w";
         string loser = null;
 
-        int[,] map = new int[8,8];
+        int[,] map = new int[8, 8];
 
         Dictionary<int, Bitmap> ChessmansWhite = new Dictionary<int, Bitmap>()
         {
@@ -72,7 +72,7 @@ namespace Chess
 
             int row = 8 - rank;
 
-            return new int[2] {row, col};
+            return new int[2] { row, col };
         }
 
         string getChessmanName(int type)
@@ -145,7 +145,8 @@ namespace Chess
         {
             v = Math.Abs(v);
 
-            switch(v) {
+            switch (v)
+            {
                 case 1:
                     return "pawn";
                 case 2:
@@ -263,7 +264,9 @@ namespace Chess
                             int[] from = { r, c };
                             int[] to = { r2, c2 };
 
-                            bool canMove = ValidateMove(from, to, string.Format("{0}@{1}", type, color));
+                            bool canMove = ValidateMove(from, to, string.Format("{0}@{1}", type, color), true);
+
+                            //Console.WriteLine("{0} {1} Can Move To {2} : {3}", string.Format("{0}@{1}", type, color), string.Format("[{0}, {1}]", from[0], from[1]), string.Format("[{0}, {1}]", to[0], to[1]), canMove);
 
                             if (canMove)
                                 return true;
@@ -336,8 +339,7 @@ namespace Chess
             return false;
         }
 
-
-        bool ValidateMove(int[] from, int[] to, string tag)
+        bool ValidateMove(int[] from, int[] to, string tag, bool isLegalMove = false)
         {
             if (finished) return false;
 
@@ -352,7 +354,7 @@ namespace Chess
 
             int targetValue = map[toRow, toCol];
 
-            if (pieceColor != shouldMove) return false;
+            if (pieceColor != shouldMove && !isLegalMove) return false;
 
             if (pieceColor == "w" && targetValue > 0) return false;
             if (pieceColor == "b" && targetValue < 0) return false;
@@ -415,7 +417,6 @@ namespace Chess
                         isValid = true;
                 }
             }
-
             else if (pieceColor == "b")
             {
                 if (pieceType == "pawn")
@@ -484,6 +485,12 @@ namespace Chess
                 return false;
             }
 
+            if (isLegalMove)
+            {
+                map = backup;
+                return true;
+            };
+
             string opponent = pieceColor == "w" ? "b" : "w";
 
             bool opponentInCheck = IsKingInCheck(opponent);
@@ -495,7 +502,7 @@ namespace Chess
                 return true;
             }
 
-            if (!opponentInCheck && !opponentHasMove )
+            if (!opponentInCheck && !opponentHasMove)
             {
                 OnStalemate(opponent);
                 return true;
@@ -507,12 +514,21 @@ namespace Chess
                 return true;
             }
 
+            if (toRow == 0 && pieceColor == "w" && pieceType == "pawn" ||
+                toRow == 7 && pieceColor == "b" && pieceType == "pawn")
+            {
+                SelectPiece sp = new SelectPiece();
+
+                if (sp.ShowDialog() == DialogResult.OK)
+                    map[toRow, toCol] = getChessmanType(string.Format("{0}@{1}", sp.selected.ToLower(), pieceColor));
+            }
+
             return true;
         }
 
         void OnCheck(string color)
         {
-            
+
         }
 
         void OnCheckmate(string color)
@@ -563,14 +579,15 @@ namespace Chess
 
         void SyncUi()
         {
-            int[,] oldMap = new int[8,8];
+            int[,] oldMap = new int[8, 8];
 
             for (int i = 0; i < panel.Controls.Count; i++)
             {
                 Panel p = panel.Controls[i] as Panel;
                 PictureBox pic = null;
-                
-                if (p.Controls.Count == 0){
+
+                if (p.Controls.Count == 0)
+                {
                     oldMap[i / 8, i % 8] = 0;
                     continue;
                 }
@@ -579,15 +596,17 @@ namespace Chess
 
                 oldMap[i / 8, i % 8] = getChessmanType(pic.Tag.ToString());
             }
-            
+
             for (int i = 0; i < panel.Controls.Count; i++)
             {
                 Panel p = panel.Controls[i] as Panel;
 
                 if (map[i / 8, i % 8] == 0 && oldMap[i / 8, i % 8] == 0) continue;
 
-                if(map[i / 8, i % 8] != oldMap[i / 8, i % 8]) {
-                    foreach(object item in panel.Controls) {
+                if (map[i / 8, i % 8] != oldMap[i / 8, i % 8])
+                {
+                    foreach (object item in panel.Controls)
+                    {
                         Panel p2 = item as Panel;
 
                         if (p2.Name == ConvertToChessNotation(i / 8, i % 8))
@@ -753,6 +772,10 @@ namespace Chess
             panel5.Left = panel1.Width - panel2.Width * 2 - 21;
             panel6.Left = panel1.Width - panel2.Width * 3 - 28;
             timer.Left = this.ClientSize.Width / 2 - timer.Width / 2;
+
+            //          knight @b[0, 1] Can Move To[2, 2] : False
+
+            // Console.WriteLine(ValidateMove(new int[] { 0, 1 }, new int[] { 2, 2 }, "knight@b", true));
         }
 
         string ToSan(string from, string to, string piece, bool isCapture = false)
@@ -766,19 +789,28 @@ namespace Chess
 
             if (pieceLetter == "" && isCapture)
                 return string.Format("{0}x{1}", from[0], to);
-  
+
             if (isCapture)
                 return string.Format("{0}x{1}", pieceLetter, to);
-  
+
             return string.Format("{0}{1}", pieceLetter, to);
         }
 
         void SaveMove(string move)
         {
-            if (selectedChessman.Tag.ToString().Split('@')[1] == "w") {
+            if (selectedChessman.Tag.ToString().Split('@')[1] == "w")
+            {
                 shouldMove = "b";
-            }else if (selectedChessman.Tag.ToString().Split('@')[1] == "b") {
+                shouldMoveBox.BackColor = Color.Black;
+                label3.ForeColor = Color.White;
+                label3.Text = "Black";
+            }
+            else if (selectedChessman.Tag.ToString().Split('@')[1] == "b")
+            {
                 shouldMove = "w";
+                shouldMoveBox.BackColor = Color.White;
+                label3.ForeColor = Color.Black;
+                label3.Text = "White";
             }
 
             Panel mv = new Panel();
@@ -808,7 +840,7 @@ namespace Chess
             lbl.Left = 15;
 
             PictureBox icon = new PictureBox();
-            
+
             icon.Image = ChessmansWhite[getChessmanType(selectedChessman.Tag.ToString())];
             icon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             icon.Size = new Size(25, 25);
@@ -842,7 +874,7 @@ namespace Chess
 
             selectedChessman = null;
             SyncUi();
-            
+
             foreach (object item in panel.Controls)
                 (item as Panel).Enabled = true;
         }
@@ -929,7 +961,13 @@ namespace Chess
                 finished = true;
                 timer1.Enabled = false;
 
-                finishGame();
+                Alert alert = new Alert(
+                    AlertType.Info,
+                    "Draw!",
+                    "GG!"
+                );
+
+                alert.ShowDialog();
                 return;
             }
 
@@ -937,7 +975,7 @@ namespace Chess
 
             m = int.Parse(timer.Text.Split(':')[0]);
             s = int.Parse(timer.Text.Split(':')[1]);
-            
+
             if (s == 0)
             {
                 m--;
@@ -947,6 +985,11 @@ namespace Chess
                 s--;
 
             timer.Text = string.Format("{0:d2}:{1:d2}", m, s);
+        }
+
+        private void time_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

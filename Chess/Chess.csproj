@@ -58,6 +58,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectPiece.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SelectPiece.Designer.cs">
+      <DependentUpon>SelectPiece.cs</DependentUpon>
+    </Compile>
     <Compile Include="SelectTime.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,6 +98,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SelectPiece.resx">
+      <DependentUpon>SelectPiece.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SelectTime.resx">
       <DependentUpon>SelectTime.cs</DependentUpon>
     </EmbeddedResource>
@@ -188,6 +197,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Rectangle 2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
